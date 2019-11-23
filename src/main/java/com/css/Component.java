@@ -64,6 +64,12 @@ interface Component {
 
     @Provides
     @IntoSet
+    static Shelf provideFrozenShelf(Clock clock, Shelf.Evaluator evaluator) {
+      return new Shelf("Frozen", Sets.newHashSet(Type.FROZEN), 15, 1, clock, evaluator);
+    }
+
+    @Provides
+    @IntoSet
     Shelf provideOverflowShelf(Clock clock, Shelf.Evaluator evaluator) {
       return new Shelf(
           "Overflow", Sets.newHashSet(Type.HOT, Type.COLD, Type.FROZEN), 20, 2, clock, evaluator);
