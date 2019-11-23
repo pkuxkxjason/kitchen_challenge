@@ -87,7 +87,7 @@ public class KitchenTests {
   }
 
   @Test
-  public void pickUpOrder_shouldReturnOrdersLIFO() {
+  public void pickUpOrder_shouldReturnOrdersFIFO() {
     kitchen.processOrder(order1);
     kitchen.processOrder(order2);
 
