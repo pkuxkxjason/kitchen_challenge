@@ -66,7 +66,7 @@ interface Component {
     @IntoSet
     Shelf provideOverflowShelf(Clock clock, Shelf.Evaluator evaluator) {
       return new Shelf(
-          "Overflow", Sets.newHashSet(Type.HOT, Type.COLD, Type.FROZEN), 20, 1, clock, evaluator);
+          "Overflow", Sets.newHashSet(Type.HOT, Type.COLD, Type.FROZEN), 20, 2, clock, evaluator);
     }
 
     @Provides

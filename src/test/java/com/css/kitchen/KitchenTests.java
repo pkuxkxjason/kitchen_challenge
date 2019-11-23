@@ -42,7 +42,7 @@ public class KitchenTests {
     coldShelf = new Shelf("cold", Sets.newHashSet(Order.Type.COLD), 2, 1, clock, evaluator);
     overflowShelf =
         new Shelf(
-            "overflow", Sets.newHashSet(Order.Type.HOT, Order.Type.COLD), 2, 1, clock, evaluator);
+            "overflow", Sets.newHashSet(Order.Type.HOT, Order.Type.COLD), 2, 2, clock, evaluator);
     kitchen = new Kitchen(Sets.newHashSet(hotShelf, coldShelf, overflowShelf), clock, displayer);
 
     when(evaluator.getExpiration(any(Shelf.class), any(Order.class), anyLong())).thenReturn(1L);
