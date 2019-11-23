@@ -1,0 +1,14 @@
+[
+  {
+    "name": "order 1",
+    "temp": "hot",
+    "shelfLife": 20,
+    "decayRate": 0.63
+  },
+  {
+    "name": "order 2",
+    "temp": "cold",
+    "shelfLife": 3,
+    "decayRate": 0.4
+  }
+]
