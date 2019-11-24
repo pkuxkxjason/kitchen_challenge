@@ -17,8 +17,8 @@ public class Order {
   @SerializedName("temp")
   final Type type;
 
-  @Nullable Processed processed;
-  @Nullable PickedUp pickedUp;
+  public @Nullable Processed processed;
+  public @Nullable PickedUp pickedUp;
 
   public Order(String name, Type type, int shelfLife, double decayRate) {
     this.name = name;
@@ -68,10 +68,12 @@ public class Order {
 
     final Shelf shelf;
     final long expiration;
+    final long createdAt;
 
-    Processed(Shelf shelf, long expiration) {
+    Processed(Shelf shelf, long expiration, long currentTime) {
       this.shelf = shelf;
       this.expiration = expiration;
+      this.createdAt = currentTime;
     }
   }
 }

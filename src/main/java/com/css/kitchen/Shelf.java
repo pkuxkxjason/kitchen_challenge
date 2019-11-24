@@ -63,8 +63,9 @@ public class Shelf {
 
   /** Adds an {@link Order}. */
   synchronized void add(Order order) {
-    long expiration = evaluator.getExpiration(this, order, clock.instant().getEpochSecond());
-    order.processed = new Order.Processed(this, expiration);
+    long currentTime = clock.instant().getEpochSecond();
+    long expiration = evaluator.getExpiration(this, order, currentTime);
+    order.processed = new Order.Processed(this, expiration, currentTime);
     orders.add(order);
   }
 
@@ -72,9 +73,9 @@ public class Shelf {
   synchronized void remove(Order order) {
     long currentTime = clock.instant().getEpochSecond();
     removeStaleOrdersIfNeeded(currentTime);
-
+    long orderAge = currentTime - order.processed.createdAt;
     // We just mark this order as picked up but we don't need to remove it right away.
-    long value = evaluator.getValue(this, order, currentTime);
+    long value = evaluator.getValue(this, order, orderAge);
     order.pickedUp = new Order.PickedUp(value);
     numPickedUp++;
   }
