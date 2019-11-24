@@ -7,8 +7,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.BlockingDeque;
-import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
@@ -37,7 +35,13 @@ public class Kitchen {
 
   private final Clock clock;
   private final Displayer displayer;
-  private final BlockingDeque<Order> ordersQueue = new LinkedBlockingDeque<>();
+
+  /** 
+   * A ordered queue by the expiration time help to consume the orders in the proper way.
+   * The PriorityQueue in each shelf is for locating the order with O(logn).
+  */ 
+  private final PriorityBlockingQueue<Order> ordersQueue =
+    new PriorityBlockingQueue<Order>(20, Comparator.comparingLong(order -> order.processed().expiration));
 
   @Inject
   Kitchen(Set<Shelf> shelves, Clock clock, Displayer displayer) {
