@@ -15,7 +15,6 @@ public class Main {
 
     // Start process the orders.
     orderDispatcher.start();
-    orderDispatcher.waitUntilCompleted();
     //Start pickup the orders
     driverDispatcher.start();
   }

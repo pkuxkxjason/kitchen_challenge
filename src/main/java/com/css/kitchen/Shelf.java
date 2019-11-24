@@ -54,14 +54,18 @@ public class Shelf {
     return orders.size() - numPickedUp;
   }
 
+  public synchronized Double getNormalizedValue(Order order) {
+    long currentTime = clock.instant().getEpochSecond();
+    long orderAge = currentTime - order.processed.createdAt;
+    long value = evaluator.getValue(this, order, orderAge);
+    return (Double) 1.0d * value/order.shelfLife;
+  }
+
   public synchronized void info(StringBuilder infoBuilder) {
     infoBuilder.append(this.name).append("::");
     for (Order order: orders()) {
-      long currentTime = clock.instant().getEpochSecond();
-      long orderAge = currentTime - order.processed.createdAt;
-      long value = evaluator.getValue(this, order, orderAge);
       infoBuilder.append(order.name).append(":");
-      infoBuilder.append(String.format("%.2f",1.0f * value / order.shelfLife)).append(",");
+      infoBuilder.append(String.format("%.2f",getNormalizedValue(order))).append(",");
     }
     infoBuilder.append("\n");
   }

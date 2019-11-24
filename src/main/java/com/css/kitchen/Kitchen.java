@@ -9,7 +9,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
+
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -30,6 +33,8 @@ public class Kitchen {
 
   public final List<Shelf> shelves;
 
+  private ReentrantLock lock = new ReentrantLock();
+
   private final Clock clock;
   private final Displayer displayer;
   private final BlockingDeque<Order> ordersQueue = new LinkedBlockingDeque<>();
@@ -38,29 +43,33 @@ public class Kitchen {
   Kitchen(Set<Shelf> shelves, Clock clock, Displayer displayer) {
     this.shelves = Lists.newArrayList(shelves);
     this.shelves.sort(Comparator.comparingInt(shelf -> shelf.coefficient));
-    shelves.forEach(
-        shelf ->
-            shelf.callback = order -> displayer.display(order.name + " is spoiled.", Kitchen.this));
+    shelves.forEach(shelf -> shelf.callback = order -> displayer.display(order.name + " is spoiled.", Kitchen.this));
     this.clock = clock;
     this.displayer = displayer;
   }
 
   /** Processes the {@link Order}. */
   public synchronized void processOrder(Order order) {
-    // Find the first available shelf.
-    Optional<Shelf> shelfOptional =
-        shelves.stream().filter(shelf -> shelf.checkOrder(order)).findFirst();
+    lock.lock();
+    try {
+      // Find the first available shelf.
+      Optional<Shelf> shelfOptional = shelves.stream().
+        filter(shelf -> shelf.checkOrder(order)).
+        findFirst();
 
-    // If there's no available shelf, the order is wasted.
-    if (!shelfOptional.isPresent()) {
-      display(order.name + " is wasted.");
-      return;
+      // If there's no available shelf, the order is wasted.
+      if (!shelfOptional.isPresent()) {
+        display(order.name + " is wasted.");
+      }
+      else {
+        // Add the order to the shelf.
+        shelfOptional.get().add(order);
+        ordersQueue.add(order);
+        display(order.name + " is processed.");
+      }
+    } finally {
+      lock.unlock();
     }
-
-    // Add the order to the shelf.
-    shelfOptional.get().add(order);
-    ordersQueue.add(order);
-    display(order.name + " is processed.");
   }
 
   /**
@@ -81,13 +90,21 @@ public class Kitchen {
 
       // If the order is good, then remove it from the shelf.
       if (order == null) return null;
-      if (order.canBePickedUpAtTime(currentTime)) {
-        order.processed().shelf.remove(order);
-        break;
+      lock.lock();
+      try {
+        if (order.canBePickedUpAtTime(currentTime)) {
+          order.processed().shelf.remove(order);
+          display(order.name + " is picked up.");
+          break;
+        } else {
+          //if it's the last proccessed order and wasted, 
+          //it will remain on the shelf forever unless explicitly remove from here
+          order.processed().shelf.count();
+        }
+      } finally {
+        lock.unlock();
       }
     }
-
-    display(order.name + "[" + order.type + "] is picked up.");
     return order;
   }
 
