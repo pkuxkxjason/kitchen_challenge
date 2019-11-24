@@ -32,6 +32,19 @@ abstract class Dispatcher {
     executorService.shutdown();
   }
 
+  public final void waitUntilCompleted() {
+    while(true) {
+      if(executorService.isTerminated()) {
+        break;
+      }
+      try {
+        Thread.sleep(100);
+      } catch (InterruptedException e) {
+        break;
+      }
+      //executorService.awaitTermination(1000, TimeUnit.SECONDS);
+    }
+  }
   /** @return {@code true} iff the dispatch is successful. */
   abstract boolean dispatch();
 

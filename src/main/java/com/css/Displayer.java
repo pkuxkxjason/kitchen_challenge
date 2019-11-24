@@ -6,9 +6,13 @@ import java.util.Collections;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import java.time.Clock;
+
 /** Displays to console. */
 @Singleton
 public class Displayer {
+
+  @Inject Clock clock;
 
   @Inject
   public Displayer() {}

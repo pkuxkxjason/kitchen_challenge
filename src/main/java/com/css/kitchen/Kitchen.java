@@ -87,7 +87,7 @@ public class Kitchen {
       }
     }
 
-    display(order.name + " is picked up.");
+    display(order.name + "[" + order.type + "] is picked up.");
     return order;
   }
 

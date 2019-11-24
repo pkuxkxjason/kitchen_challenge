@@ -13,7 +13,10 @@ public class Main {
     OrderDispatcher orderDispatcher = component.orderDispatcher();
     DriverDispatcher driverDispatcher = component.driverDispatcher();
 
-    // Start dispatching.
+    // Start process the orders.
     orderDispatcher.start();
+    orderDispatcher.waitUntilCompleted();
+    //Start pickup the orders
+    driverDispatcher.start();
   }
 }

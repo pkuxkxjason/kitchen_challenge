@@ -2,8 +2,12 @@ package com.css.dispatch;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyDouble;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.times;
 
+import com.css.dispatch.DriverDispatcher.DiscreteGenerator;
 import com.css.kitchen.Kitchen;
 import com.css.kitchen.Order;
 import java.util.concurrent.ScheduledExecutorService;
@@ -18,14 +22,15 @@ public class DriverDispatcherTests {
 
   @Mock private ScheduledExecutorService executorService;
   @Mock private Kitchen kitchen;
+  @Mock private DiscreteGenerator generator;
 
   private DriverDispatcher driverDispatcher;
 
   @Before
   public void setup() {
     MockitoAnnotations.initMocks(this);
-
-    driverDispatcher = new DriverDispatcher(executorService, kitchen, meanFrequency -> 1);
+    when(generator.generateEventsCount(anyDouble())).thenReturn(1);
+    driverDispatcher = new DriverDispatcher(executorService, kitchen, generator);
   }
 
   @Test
@@ -36,4 +41,13 @@ public class DriverDispatcherTests {
     when(kitchen.pickUpOrder(anyLong())).thenReturn(null);
     assertThat(driverDispatcher.dispatch()).isFalse();
   }
+
+  @Test
+  public void dispatch_shouldPickUpOrderByTheGivenNumberOfDrivers() {
+    when(kitchen.pickUpOrder(anyLong())).thenReturn(order);
+    when(generator.generateEventsCount(anyDouble())).thenReturn(5);
+    assertThat(driverDispatcher.dispatch()).isTrue();
+    verify(kitchen,times(5)).pickUpOrder(anyLong());
+  }
+
 }
