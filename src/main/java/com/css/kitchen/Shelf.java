@@ -54,6 +54,18 @@ public class Shelf {
     return orders.size() - numPickedUp;
   }
 
+  public synchronized void info(StringBuilder infoBuilder) {
+    infoBuilder.append(this.name).append("::");
+    for (Order order: orders()) {
+      long currentTime = clock.instant().getEpochSecond();
+      long orderAge = currentTime - order.processed.createdAt;
+      long value = evaluator.getValue(this, order, orderAge);
+      infoBuilder.append(order.name).append(":");
+      infoBuilder.append(String.format("%.2f",1.0f * value / order.shelfLife)).append(",");
+    }
+    infoBuilder.append("\n");
+  }
+
   /** @return {@code true} iff the {@link Shelf} can hold this {@link Order}. */
   synchronized boolean checkOrder(Order order) {
     removeStaleOrdersIfNeeded(clock.instant().getEpochSecond());
@@ -79,6 +91,8 @@ public class Shelf {
     order.pickedUp = new Order.PickedUp(value);
     numPickedUp++;
   }
+
+
 
   /**
    * This method is inefficient and should only be used for testing.
