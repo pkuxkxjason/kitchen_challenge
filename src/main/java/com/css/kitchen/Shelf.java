@@ -106,6 +106,7 @@ public class Shelf {
       // Remove picked up order and update pickup count.
       if (order.pickedUp != null) {
         orders.remove(order);
+        numPickedUp--;
         continue;
       }
 
@@ -115,7 +116,6 @@ public class Shelf {
         if (callback != null) callback.onOrderExpired(order);
         continue;
       }
-
       break;
     } while (true);
   }
